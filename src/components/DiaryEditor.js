@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useContext, useRef, useState } from 'react';
+import { DiaryDispatchContext } from '../App';
 
 import MyButton from '../components/MyButton';
 import MyHeader from '../components/MyHeader';
@@ -41,9 +42,25 @@ const getStringDate = date => {
 };
 
 const DiaryEditor = () => {
+  const contentRef = useRef();
+  const [content, setContent] = useState('');
+  const [emotion, setEmotion] = useState(3);
   const [date, setDate] = useState(getStringDate(new Date()));
 
+  const handleClickEmote = emotion => {
+    setEmotion(emotion);
+  };
   const navigate = useNavigate();
+  const { onCreate } = useContext(DiaryDispatchContext);
+  const handleSubmit = () => {
+    if (content.length < 1) {
+      contentRef.current.focus();
+      return;
+    }
+    onCreate(date, content, emotion);
+    navigate('/', { replace: true }); //뒤로가기 막음
+  };
+
   return (
     <div className="DiaryEditor">
       <MyHeader headText={'새 일기쓰기'} leftChild={<MyButton text={'< 뒤로가기'} onClick={() => navigate(-1)} />} />
@@ -57,12 +74,31 @@ const DiaryEditor = () => {
         <section>
           <h4>오늘의 감정</h4>
           <div className="input_box emotion_list_wrapper">
-            <img src={emotionList[0].emotion_img}></img>
             {emotionList.map(it => (
-              <EmotionItem key={it.emotion_id} {...it} />
+              <EmotionItem
+                key={it.emotion_id}
+                {...it}
+                onClick={handleClickEmote}
+                isSelected={it.emotion_id === emotion}
+              />
             ))}
           </div>
         </section>
+        <section>
+          <h4>오늘의 일기</h4>
+          <div className="input_box text_wrapper">
+            <textarea
+              placeholder="오늘은 어땟나요?"
+              ref={contentRef}
+              value={content}
+              onChange={e => setContent(e.target.value)}
+            />
+          </div>
+        </section>
+        <div className="control_box">
+          <MyButton text={'취소하기'} onClick={() => navigate(-1)} />
+          <MyButton text={'작성완료'} type={'positive'} onClick={handleSubmit} />
+        </div>
       </div>
     </div>
   );
