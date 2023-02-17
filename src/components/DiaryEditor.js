@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { DiaryDispatchContext } from '../App';
 
 import MyButton from '../components/MyButton';
@@ -17,9 +17,9 @@ const DiaryEditor = ({ isEdit, originData }) => {
   const [emotion, setEmotion] = useState(3);
   const [date, setDate] = useState(getStringDate(new Date()));
 
-  const handleClickEmote = emotion => {
+  const handleClickEmote = useCallback(emotion => {
     setEmotion(emotion);
-  };
+  }, []);
   const navigate = useNavigate();
   const { onCreate, onEdit, onRemove } = useContext(DiaryDispatchContext);
   const handleSubmit = () => {
@@ -58,7 +58,7 @@ const DiaryEditor = ({ isEdit, originData }) => {
       <MyHeader
         headText={isEdit ? '일기 수정하기' : '새 일기쓰기'}
         leftChild={<MyButton text={'< 뒤로가기'} onClick={() => navigate(-1)} />}
-        rightChild={isEdit && <MyButton text={'삭제하기'} type={'negative'} onClick={() => navigate(-1)} />}
+        rightChild={isEdit && <MyButton text={'삭제하기'} type={'negative'} onClick={handelRemove} />}
       />
       <div>
         <section>
